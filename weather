@@ -25,4 +25,8 @@ clear = 'NO'
 if int(code) in [ 23, 24, 25, 29, 30, 44, 31, 32, 33, 34, 36 ]:
     clear = 'YES'
 
-print "%s\t%s\t%s\t%s" % (epoch, clear, text, code)
+dir = sys.path[0] + '/'
+fp = open(dir + 'weather.tsv', 'w')
+out = "%s\t%s\t%s\t%s\n" % (epoch, clear, text, code)
+fp.write(out)
+fp.close()
