@@ -3,16 +3,13 @@
 # Scraper for ISS and Iridium flare pages
 # Runs once a day.
 
-# Change these co-ordinates for your location
-lat = 52.48
-lon = -1.90
-
 import urllib, re, time, sys
 from datetime import datetime
+from config import LATITUDE, LONGITUDE, ALTITUDE
 
 dir = sys.path[0] + '/'
 
-iss = urllib.urlopen('http://www.heavens-above.com/PassSummary.aspx?satid=25544&lat=%f&lng=%f&alt=114&tz=GMT' % (lat, lon)).read()
+iss = urllib.urlopen('http://www.heavens-above.com/PassSummary.aspx?satid=25544&lat=%f&lng=%f&alt=%d&tz=GMT' % (LATITUDE, LONGITUDE, ALTITUDE)).read()
 rows = re.findall('<tr class="(?:light|dark)row">\s*<td><a href="[^"]*">(.*?)</a></td>' + ('<td>\s*(.*?)\s*</td>' * 10), iss)
 fp = open(dir + 'iss.tsv', 'w')
 for row in rows:
@@ -23,7 +20,7 @@ for row in rows:
     fp.write("\t".join(out) + "\n")
 fp.close()
 
-iridium = urllib.urlopen('http://www.heavens-above.com/iridium.asp?Dur=7&lat=%f&lng=%f&alt=114&tz=GMT' % (lat, lon)).read()
+iridium = urllib.urlopen('http://www.heavens-above.com/iridium.asp?Dur=7&lat=%f&lng=%f&alt=%d&tz=GMT' % (LATITUDE, LONGITUDE, ALTITUDE)).read()
 rows = re.findall('<tr>\s*<td>(.*?)</td>\s*<td><a href="flaredetails[^"]*">(.*?)</a></td>\s*<td align=center>(.*?)</td>\s*<td align=right>(\d+)&#176;</td>\s*<td align=right>(\d+)&#176; \((.*?)\s*\)</td>\s*<td align=right>.*?</td>\s*<td align=center>.*?</td>\s*<td align=left><a href="[^"]*">(.*?)</a></td>', iridium)
 fp = open(dir + 'iridium.tsv', 'w')
 for row in rows:

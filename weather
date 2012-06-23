@@ -3,12 +3,10 @@
 # Run hourly to fetch latest weather from Yahoo!
 
 import urllib, re, time, sys
-
-# Get the code for a different place from the Yahoo! web site or similar
-code = 'UKXX0018'
+from config import PLACE_ID
 
 try:
-    weather = urllib.urlopen('http://weather.yahooapis.com/forecastrss?p=%s&u=c' % code).read()
+    weather = urllib.urlopen('http://weather.yahooapis.com/forecastrss?w=%d&u=c' % PLACE_ID).read()
 except Exception:
     sys.exit()
 
