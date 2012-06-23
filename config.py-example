@@ -1,0 +1,19 @@
+#!/usr/local/bin/python
+
+# Change these co-ordinates for your location
+# feetup.org has 51.36, 1.03, 10 for Whitstable
+LATITUDE = 52.48
+LONGITUDE = -1.90
+ALTITUDE = 114
+
+# Get the WOEID code for a different place from e.g.
+# http://woeid.rosselliot.co.nz/
+# feetup.org has 40335 for Whitstable
+PLACE_ID = 12723
+
+# Twitter auth codes
+CONSUMER_KEY = ""
+CONSUMER_SECRET = ""
+ACCESS_TOKEN = ""
+ACCESS_TOKEN_SECRET = ""
+
