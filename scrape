@@ -10,7 +10,7 @@ from config import LATITUDE, LONGITUDE, ALTITUDE
 dir = sys.path[0] + '/'
 
 iss = urllib.urlopen('http://www.heavens-above.com/PassSummary.aspx?satid=25544&lat=%f&lng=%f&alt=%d&tz=GMT' % (LATITUDE, LONGITUDE, ALTITUDE)).read()
-rows = re.findall('<tr class="(?:light|dark)row">\s*<td><a href="[^"]*">(.*?)</a></td>' + ('<td>\s*(.*?)\s*</td>' * 10), iss)
+rows = re.findall('<tr class="(?:light|dark)row">\s*<td><a href="[^"]*" title="[^"]*">(.*?)</a></td>' + ('<td[^>]*>\s*(.*?)\s*</td>' * 10), iss)
 fp = open(dir + 'iss.tsv', 'w')
 for row in rows:
     date, mag, start_time, start_alt, start_az, max_time, max_alt, max_az, end_time, end_alt, end_az = row
