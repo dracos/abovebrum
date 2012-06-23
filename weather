@@ -1,0 +1,30 @@
+#!/usr/local/bin/python
+#
+# Run hourly to fetch latest weather from Yahoo!
+
+import urllib, re, time, sys
+
+# Get the code for a different place from the Yahoo! web site or similar
+code = 'UKXX0018'
+
+try:
+    weather = urllib.urlopen('http://weather.yahooapis.com/forecastrss?p=%s&u=c' % code).read()
+except Exception:
+    sys.exit()
+
+# visibility might be useful for someone - I don't use it
+# m = re.search('<yweather:atmosphere humidity="(\d*)"  visibility="([\d.]*)"  pressure="([\d.]*)"', weather)
+# humidity, visibility, pressure = m.groups()
+
+m = re.search('<yweather:condition  text="(.*?)"  code="(\d+)"  temp="(-?\d+)"  date="(.*?)"', weather)
+text, code, temp, date = m.groups()
+
+epoch = time.mktime( time.strptime(date, '%a, %d %b %Y %I:%M %p %Z') )
+
+# Twitter bot doesn't actually use this, but it possibly could.
+clear = 'NO'
+# Blustery, Windy, Cold, Partly cloudy, clear, Sunny, Fair
+if int(code) in [ 23, 24, 25, 29, 30, 44, 31, 32, 33, 34, 36 ]:
+    clear = 'YES'
+
+print "%s\t%s\t%s\t%s" % (epoch, clear, text, code)

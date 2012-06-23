@@ -1,0 +1,48 @@
+#!/usr/bin/env python
+#
+# twitter:
+# Twitter Iridium flares and ISS flybys above Birmingham
+#
+# Copyright (c) 2009 Matthew Somerville. http://www.dracos.co.uk/
+
+import sys
+from datetime import datetime, timedelta
+import tweepy
+from config import *
+dir = sys.path[0] + '/'
+
+def main():
+    soon = datetime.today() + timedelta(minutes=30)
+
+    weather = open(dir + 'weather.tsv').read().strip()
+    if "\t" not in weather: return # Problem with .tsv file
+
+    weather_epoch, weather_clear, weather_desc, weather_code = weather.split("\t")
+
+    flares = open(dir + 'iridium.tsv')
+    for row in flares:
+        epoch, mag, altitude, azimuth, compass, name = row.strip().split("\t")
+        epoch = datetime.fromtimestamp(float(epoch))
+        if soon >= epoch and soon < epoch + timedelta(minutes=5):
+            s = u"Iridium flare: magnitude %s at %s, altitude %d\u00b0, in direction %d\u00b0 (%s), from %s. Weather: %s." % (
+                mag, epoch.strftime('%H:%M:%S'), float(altitude), float(azimuth), compass, name, weather_desc
+            )
+            twitter(s)
+
+    iss = open(dir + 'iss.tsv')
+    for row in iss:
+        epoch, mag, start_time, end_time, start_az, end_az, max_time, max_alt, max_az = row.strip().split("\t")
+        epoch = datetime.fromtimestamp(float(epoch))
+        if soon >= epoch and soon < epoch + timedelta(minutes=5):
+            s = u"ISS pass: magnitude %.1f, %s\u2013%s from %s to %s, maximum altitude %d\u00b0 at %s in %s. Weather: %s." % (
+                float(mag), start_time, end_time, start_az, end_az, float(max_alt), max_time, max_az, weather_desc
+            )
+            twitter(s)
+
+def twitter(line):
+    line = line.encode('utf-8')
+    auth = tweepy.OAuthHandler(CONSUMER_KEY, CONSUMER_SECRET)
+    auth.set_access_token(ACCESS_TOKEN, ACCESS_TOKEN_SECRET)
+    return tweepy.API(auth).update_status(line)
+
+main()

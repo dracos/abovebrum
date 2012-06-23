@@ -1,3 +1,10 @@
+*~
+
+config.py
+weather.tsv
+iss.tsv
+iridium.tsv
+
 *.py[co]
 
 # Packages
