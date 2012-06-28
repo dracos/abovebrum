@@ -5,6 +5,7 @@
 #
 # Copyright (c) 2009 Matthew Somerville. http://www.dracos.co.uk/
 
+import codecs
 import sys
 from datetime import datetime, timedelta
 import tweepy
@@ -29,13 +30,13 @@ def main():
             )
             twitter(s)
 
-    iss = open(dir + 'iss.tsv')
+    iss = codecs.open(dir + 'iss.tsv', encoding='utf-8')
     for row in iss:
         epoch, mag, start_time, end_time, start_az, end_az, max_time, max_alt, max_az = row.strip().split("\t")
         epoch = datetime.fromtimestamp(float(epoch))
         if soon >= epoch and soon < epoch + timedelta(minutes=5):
-            s = u"ISS pass: magnitude %.1f, %s\u2013%s from %s to %s, maximum altitude %d\u00b0 at %s in %s. Weather: %s." % (
-                float(mag), start_time, end_time, start_az, end_az, float(max_alt), max_time, max_az, weather_desc
+            s = u"ISS pass: magnitude %.1f, %s\u2013%s from %s to %s, maximum altitude %s at %s in %s. Weather: %s." % (
+                float(mag), start_time, end_time, start_az, end_az, max_alt, max_time, max_az, weather_desc
             )
             twitter(s)
 
