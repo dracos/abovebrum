@@ -10,22 +10,25 @@ from config import LATITUDE, LONGITUDE, ALTITUDE
 dir = sys.path[0] + '/'
 
 iss = urllib.urlopen('http://www.heavens-above.com/PassSummary.aspx?satid=25544&lat=%f&lng=%f&alt=%d&tz=GMT' % (LATITUDE, LONGITUDE, ALTITUDE)).read()
-rows = re.findall('<tr class="(?:light|dark)row">\s*<td><a href="[^"]*" title="[^"]*">(.*?)</a></td>' + ('<td[^>]*>\s*(.*?)\s*</td>' * 10), iss)
+rows = re.findall('<tr class="[^"]*(?:light|dark)row"[^>]*>\s*<td><a href="[^"]*" title="[^"]*">(.*?)</a></td>' + ('<td[^>]*>\s*(.*?)\s*</td>' * 11), iss)
 fp = open(dir + 'iss.tsv', 'w')
 for row in rows:
-    date, mag, start_time, start_alt, start_az, max_time, max_alt, max_az, end_time, end_alt, end_az = row
+    date, mag, start_time, start_alt, start_az, max_time, max_alt, max_az, end_time, end_alt, end_az, pass_type = row
     # This will break around New Year time.
     timestamp = time.mktime(time.strptime('%s %s %s' % (datetime.now().year, date, start_time), '%Y %d %b %H:%M:%S'))
     out = (str(timestamp), mag, start_time, end_time, start_az, end_az, max_time, max_alt, max_az)
     fp.write("\t".join(out) + "\n")
 fp.close()
 
-iridium = urllib.urlopen('http://www.heavens-above.com/iridium.asp?Dur=7&lat=%f&lng=%f&alt=%d&tz=GMT' % (LATITUDE, LONGITUDE, ALTITUDE)).read()
-rows = re.findall('<tr>\s*<td>(.*?)</td>\s*<td><a href="flaredetails[^"]*">(.*?)</a></td>\s*<td align=center>(.*?)</td>\s*<td align=right>(\d+)&#176;</td>\s*<td align=right>(\d+)&#176; \((.*?)\s*\)</td>\s*<td align=right>.*?</td>\s*<td align=center>.*?</td>\s*<td align=left><a href="[^"]*">(.*?)</a></td>', iridium)
+iridium = urllib.urlopen('http://www.heavens-above.com/IridiumFlares.aspx?Dur=7&lat=%f&lng=%f&alt=%d&tz=GMT' % (LATITUDE, LONGITUDE, ALTITUDE)).read()
+rows = re.findall('<tr[^>]*>\s*<td><a href="flaredetails[^"]*">(.*?)</a></td>\s*' + ('<td[^>]*>(.*?)</td>\s*' * 7), iridium)
 fp = open(dir + 'iridium.tsv', 'w')
 for row in rows:
-    date, flare_time, mag, altitude, azimuth, compass, name = row
-    timestamp = time.mktime(time.strptime('%s %s %s' % (datetime.now().year, date, flare_time), '%Y %d %b %H:%M:%S'))
+    flare_timestamp, mag, altitude, azimuth, name, distance, brightness, sun = row
+    m = re.match('(.*?)\s+\((.*?)\)', azimuth)
+    azimuth, compass = m.groups()
+
+    timestamp = time.mktime(time.strptime('%s %s' % (datetime.now().year, flare_timestamp), '%Y %b %d, %H:%M:%S'))
     out = (str(timestamp), mag, altitude, azimuth, compass, name)
     fp.write("\t".join(out) + "\n")
 fp.close()

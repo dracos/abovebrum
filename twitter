@@ -20,13 +20,13 @@ def main():
 
     weather_epoch, weather_clear, weather_desc, weather_code = weather.split("\t")
 
-    flares = open(dir + 'iridium.tsv')
+    flares = codecs.open(dir + 'iridium.tsv', encoding='utf-8')
     for row in flares:
         epoch, mag, altitude, azimuth, compass, name = row.strip().split("\t")
         epoch = datetime.fromtimestamp(float(epoch))
         if soon >= epoch and soon < epoch + timedelta(minutes=5):
-            s = u"Iridium flare: magnitude %s at %s, altitude %d\u00b0, in direction %d\u00b0 (%s), from %s. Weather: %s." % (
-                mag, epoch.strftime('%H:%M:%S'), float(altitude), float(azimuth), compass, name, weather_desc
+            s = u"Iridium flare: magnitude %s at %s, altitude %s, in direction %s (%s), from %s. Weather: %s." % (
+                mag, epoch.strftime('%H:%M:%S'), altitude, azimuth, compass, name, weather_desc
             )
             twitter(s)
 
