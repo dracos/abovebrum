@@ -6,6 +6,7 @@
 # Copyright (c) 2009 Matthew Somerville. http://www.dracos.co.uk/
 
 import codecs
+import json
 import sys
 from datetime import datetime, timedelta
 import tweepy
@@ -15,10 +16,10 @@ dir = sys.path[0] + '/'
 def main():
     soon = datetime.today() + timedelta(minutes=30)
 
-    weather = open(dir + 'weather.tsv').read().strip()
-    if "\t" not in weather: return # Problem with .tsv file
+    weather = json.load(open(dir + 'weather.json'))
+    if not weather: return # Problem with weather file
 
-    weather_epoch, weather_clear, weather_desc, weather_code = weather.split("\t")
+    weather_desc = weather['summary']
 
     flares = codecs.open(dir + 'iridium.tsv', encoding='utf-8')
     for row in flares:
