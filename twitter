@@ -8,13 +8,13 @@
 import codecs
 import json
 import sys
-from datetime import datetime, timedelta
+import arrow
 import tweepy
 from config import *
 dir = sys.path[0] + '/'
 
 def main():
-    soon = datetime.today() + timedelta(minutes=30)
+    soon = arrow.utcnow().replace(minutes=30)
 
     weather = json.load(open(dir + 'weather.json'))
     if not weather: return # Problem with weather file
@@ -24,18 +24,18 @@ def main():
     flares = codecs.open(dir + 'iridium.tsv', encoding='utf-8')
     for row in flares:
         epoch, mag, altitude, azimuth, compass, name = row.strip().split("\t")
-        epoch = datetime.fromtimestamp(float(epoch))
-        if soon >= epoch and soon < epoch + timedelta(minutes=5):
+        epoch = arrow.get(epoch)
+        if soon >= epoch and soon < epoch.replace(minutes=5):
             s = u"Iridium flare: magnitude %s at %s, altitude %s, in direction %s (%s), from %s. Weather: %s." % (
-                mag, epoch.strftime('%H:%M:%S'), altitude, azimuth, compass, name, weather_desc
+                mag, epoch.format('HH:mm:ss'), altitude, azimuth, compass, name, weather_desc
             )
             twitter(s)
 
     iss = codecs.open(dir + 'iss.tsv', encoding='utf-8')
     for row in iss:
         epoch, mag, start_time, end_time, start_az, end_az, max_time, max_alt, max_az = row.strip().split("\t")
-        epoch = datetime.fromtimestamp(float(epoch))
-        if soon >= epoch and soon < epoch + timedelta(minutes=5):
+        epoch = arrow.get(epoch)
+        if soon >= epoch and soon < epoch.replace(minutes=5):
             s = u"ISS pass: magnitude %.1f, %s\u2013%s from %s to %s, maximum altitude %s at %s in %s. Weather: %s." % (
                 float(mag), start_time, end_time, start_az, end_az, max_alt, max_time, max_az, weather_desc
             )
