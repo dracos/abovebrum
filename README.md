@@ -17,12 +17,12 @@ Register an application at [https://apps.twitter.com](https://apps.twitter.com)
 in order to get a consumer key and secret, and an access token and secret.
 Register with [https://developer.forecast.io](forecast.io) to get an API key.
 
-Install tweepy (a third party application to talk to the Twitter API):
+Install the needed requirements:
 
 ```
 $ virtualenv venv
 $ source venv/bin/activate
-$ pip install tweepy
+$ pip install -r requirements.txt
 ```
 
 Clone the repository:

@@ -1,4 +1,4 @@
-#!/usr/local/bin/python
+#!/usr/bin/env python
 #
 # Scraper for ISS and Iridium flare pages
 # Runs once a day.
