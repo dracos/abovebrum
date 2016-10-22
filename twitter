@@ -24,7 +24,7 @@ def main():
     flares = codecs.open(dir + 'iridium.tsv', encoding='utf-8')
     for row in flares:
         epoch, mag, altitude, azimuth, compass, name = row.strip().split("\t")
-        epoch = arrow.get(epoch)
+        epoch = arrow.get(epoch).to('Europe/London')
         if soon >= epoch and soon < epoch.replace(minutes=5):
             s = u"Iridium flare: magnitude %s at %s, altitude %s, in direction %s (%s), from %s. Weather: %s." % (
                 mag, epoch.format('HH:mm:ss'), altitude, azimuth, compass, name, weather_desc
@@ -34,7 +34,7 @@ def main():
     iss = codecs.open(dir + 'iss.tsv', encoding='utf-8')
     for row in iss:
         epoch, mag, start_time, end_time, start_az, end_az, max_time, max_alt, max_az = row.strip().split("\t")
-        epoch = arrow.get(epoch)
+        epoch = arrow.get(epoch).to('Europe/London')
         if soon >= epoch and soon < epoch.replace(minutes=5):
             s = u"ISS pass: magnitude %.1f, %s\u2013%s from %s to %s, maximum altitude %s at %s in %s. Weather: %s." % (
                 float(mag), start_time, end_time, start_az, end_az, max_alt, max_time, max_az, weather_desc
