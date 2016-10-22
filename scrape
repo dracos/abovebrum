@@ -3,23 +3,30 @@
 # Scraper for ISS and Iridium flare pages
 # Runs once a day.
 
-import urllib, re, time, sys
-from datetime import datetime
+import urllib, re, sys
+import arrow
 from config import LATITUDE, LONGITUDE, ALTITUDE
 
 dir = sys.path[0] + '/'
+
+
+def get_timestamp(s):
+    s = arrow.get(s, ['MMM D, HH:mm:ss', 'MMM DD HH:mm:ss a', 'DD MMM HH:mm:ss'])
+    now = arrow.now()
+    s = s.replace(year=now.year, tzinfo='Europe/London')
+    # Deal with around New Year time
+    if s < now:
+        s = s.replace(years=1)
+    return str(s.timestamp)
+
 
 iss = urllib.urlopen('http://www.heavens-above.com/PassSummary.aspx?satid=25544&lat=%f&lng=%f&alt=%d&tz=GMT' % (LATITUDE, LONGITUDE, ALTITUDE)).read()
 rows = re.findall('<tr class="clickableRow"[^>]*>\s*<td><a href="[^"]*" title="[^"]*">(.*?)</a></td>' + ('<td[^>]*>\s*(.*?)\s*</td>' * 11), iss)
 fp = open(dir + 'iss.tsv', 'w')
 for row in rows:
     date, mag, start_time, start_alt, start_az, max_time, max_alt, max_az, end_time, end_alt, end_az, pass_type = row
-    # This will break around New Year time.
-    try:
-        timestamp = time.mktime(time.strptime('%s %s %s' % (datetime.now().year, date, start_time), '%Y %b %d %H:%M:%S %p'))
-    except:
-        timestamp = time.mktime(time.strptime('%s %s %s' % (datetime.now().year, date, start_time), '%Y %d %b %H:%M:%S'))
-    out = (str(timestamp), mag, start_time, end_time, start_az, end_az, max_time, max_alt, max_az)
+    timestamp = get_timestamp('%s %s' % (date, start_time))
+    out = (timestamp, mag, start_time, end_time, start_az, end_az, max_time, max_alt, max_az)
     fp.write("\t".join(out) + "\n")
 fp.close()
 
@@ -30,8 +37,7 @@ for row in rows:
     flare_timestamp, mag, altitude, azimuth, name, distance, brightness, sun = row
     m = re.match('(.*?)\s+\((.*?)\)', azimuth)
     azimuth, compass = m.groups()
-
-    timestamp = time.mktime(time.strptime('%s %s' % (datetime.now().year, flare_timestamp), '%Y %b %d, %H:%M:%S'))
-    out = (str(timestamp), mag, altitude, azimuth, compass, name)
+    timestamp = get_timestamp(flare_timestamp)
+    out = (timestamp, mag, altitude, azimuth, compass, name)
     fp.write("\t".join(out) + "\n")
 fp.close()
